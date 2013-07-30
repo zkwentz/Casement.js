@@ -1,49 +1,3 @@
-/*
-bindWithDelay jQuery plugin
-Author: Brian Grinstead
-MIT license: http://www.opensource.org/licenses/mit-license.php
-
-http://github.com/bgrins/bindWithDelay
-*/
-(function($) {
-  $.fn.bindWithDelay = function( type, data, fn, timeout, throttle ) {
-    if ( $.isFunction( data ) ) {
-      throttle = timeout;
-      timeout = fn;
-      fn = data;
-      data = undefined;
-    }
-
-    // Allow delayed function to be removed with fn in unbind function
-    fn.guid = fn.guid || ($.guid && $.guid++);
-
-    // Bind each separately so that each element has its own delay
-    return this.each(function() {
-      var wait = null;
-
-      function cb() {
-        var e = $.extend(true, { }, arguments[0]);
-        var ctx = this;
-        var throttler = function() {
-          wait = null;
-          fn.apply(ctx, [e]);
-        };
-
-        if (!throttle) { clearTimeout(wait); wait = null; }
-        if (!wait) { wait = setTimeout(throttler, timeout); }
-      }
-
-      cb.guid = fn.guid;
-
-      $(this).bind(type, data, cb);
-    });
-  }
-})(jQuery);
-
-
-
-
-
 /*!
  * Casement.js jQuery plugin
  * Author: @jed_foster
@@ -106,52 +60,41 @@ http://github.com/bgrins/bindWithDelay
             overflowX: 'auto',
             overflowY: 'auto',
             zIndex: 9999
-          }).attr('id', 'sash' + (index + 1))
-
-           .insertAfter($(this));
-
-
-
+          }).attr('id', 'sash' + (index + 1)).insertAfter($(this));
 
           $($this.element).bind("mousedown.casement", function (event) {
             $dragging = null;
+
             if( ! $(event.target).hasClass('sash') ) {
               event.stopPropagation();
               return false;
             }
 
-            console.log(event);
+            $('body').css('cursor', 'col-resize');
 
-              $('body').css('cursor', 'col-resize');
+            $dragging = $(event.target);
 
-              $dragging = $(event.target);
-
-              return false;
+            return true;
           })
-
           .bind("mouseup.casement", function (e) {
-              $dragging = null;
+            $dragging = null;
 
-              $('body').css('cursor', 'auto');
+            $('body').css('cursor', 'auto');
+
+            return true;
           })
-
-
           .bind("mousemove.casement", function(event) {
-      
             if ($dragging) {
               $this.resize($dragging, {
                 // top: event.pageY,
                 left: event.pageX
               });
             }
-            return false;
+            return true;
           });
-
         }
       });
-
     },
-
 
     percentage: function(int) {
       return  Math.abs( int /  ( $(this.element).innerWidth() * 0.01 ) );
@@ -162,25 +105,11 @@ http://github.com/bgrins/bindWithDelay
           leftNewWidth = this.percentage(handle.prev().width() - diff),
           rightNewWidth = this.percentage(handle.next().width() + diff),
           rightNewOffset = this.percentage(handle.next().offset().left - diff  - $(this.element).offset().left);
-          
-          
-          // console.log('LF px: ' + (handle.prev().width()));
-          // console.log('RT px: ' + (handle.next().width()));
-          
-          // console.log('LF px, diff: ' + (handle.prev().width() - diff));
-          // console.log('RT px, diff: ' + (handle.next().width() + diff));
-          // console.log((rightNewWidth));
-          // console.log('%: ' + (rightNewWidth));
-          
-          // console.log(Math.abs(( int )  / ($(this.element).innerWidth() * 0.01) ));
-
-          // console.log('----------');
 
       handle.css({left: (this.percentage(offset.left  - $(this.element).offset().left )) + '%'});
-
       handle.prev().css({width: (leftNewWidth) + '%'});
 
-      $(handle).next().css({
+      handle.next().css({
         width: (rightNewWidth) + '%',
         left: (rightNewOffset) + '%'
       });
