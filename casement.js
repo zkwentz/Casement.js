@@ -74,14 +74,14 @@
 
             $dragging = $(event.target);
 
-            return true;
+            return false;
           })
           .bind("mouseup.casement", function (e) {
             $dragging = null;
 
             $('body').css('cursor', 'auto');
 
-            return true;
+            return false;
           })
           .bind("mousemove.casement", function(event) {
             if ($dragging) {
@@ -90,7 +90,7 @@
                 left: event.pageX
               });
             }
-            return true;
+            return false;
           });
         }
       });
