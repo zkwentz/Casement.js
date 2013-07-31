@@ -18,7 +18,13 @@
     #container { margin: 0 auto; max-width: 64em; }
     #info { border-bottom: 1px solid #999; }
 
-    .sash { cursor: col-resize; }
+    .sash {
+      position: absolute;
+      z-index: 9999;
+      width: 4px;
+      background-color: #f0f;
+      cursor: col-resize;
+    }
   </style>
 </head>
 

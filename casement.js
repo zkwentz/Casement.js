@@ -53,13 +53,7 @@
 
           $('<div/>').addClass('vertical sash').css({
             left: (paneSize * (index + 1)) + ( $this.options.gutter * index + 1.25)  + '%',
-            position: 'absolute',
-            backgroundColor: '#f0f',
-            width: '4px',
             height: height,
-            overflowX: 'auto',
-            overflowY: 'auto',
-            zIndex: 9999
           }).attr('id', 'sash' + (index + 1)).insertAfter($(this));
 
           $($this.element).bind("mousedown.casement", function (event) {
