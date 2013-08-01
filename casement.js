@@ -7,7 +7,7 @@
 
 ;(function($) {
 
-  var $dragging = null;
+  var $dragging = sash_id = null;
 
   var casement = 'casement',
       defaults = {
@@ -19,7 +19,6 @@
         onDragEnd: $.noop,
         onDrag: $.noop
       };
-
 
   function Casement( element, options ) {
     this.element = element;
@@ -50,44 +49,53 @@
         });
 
         if(index !== columns - 1) {
-
           $('<div/>').addClass('vertical sash').css({
             left: (paneSize * (index + 1)) + ( $this.options.gutter * index + 1.25)  + '%',
             height: height,
-          }).attr('id', 'sash' + (index + 1)).insertAfter($(this));
-
-          $($this.element).bind("mousedown.casement", function (event) {
-            $dragging = null;
-
-            if( ! $(event.target).hasClass('sash') ) {
-              event.stopPropagation();
-              return false;
-            }
-
-            $('body').css('cursor', 'col-resize');
-
-            $dragging = $(event.target);
-
-            return false;
+          }).attr('id', 'sash' + (index + 1))
+          .mouseenter(function() {
+            sash_id = 'sash' + (index + 1);
           })
-          .bind("mouseup.casement", function (e) {
-            $dragging = null;
-
-            $('body').css('cursor', 'auto');
-
-            return false;
+          .mouseleave(function() {
+            sash_id = null;
           })
-          .bind("mousemove.casement", function(event) {
-            if ($dragging) {
-              $this.resize($dragging, {
-                // top: event.pageY,
-                left: event.pageX
-              });
-            }
-            return false;
-          });
+          .insertAfter($(this));
         }
       });
+
+      $(document.documentElement).bind("mousedown.casement", function (event) {
+        if (sash_id !== null) {
+          $dragging = null;
+
+          $('<div class="sashShim"></div>').insertAfter(sash_id); // Somehow makes the mouseup event actually release the sash handle
+
+          if( ! $(event.target).hasClass('sash') ) {
+            event.stopPropagation();
+            return false;
+          }
+
+          $('body').css('cursor', 'col-resize');
+
+          $dragging = $(event.target);
+
+          return false;
+        }
+      })
+      .bind("mouseup.casement", function (e) {
+        $dragging = null;
+        $('div.sashShim').remove();
+        $('body').css('cursor', 'auto');
+      })
+      .bind("mousemove.casement", function(event) {
+        if ($dragging !== null) {
+          $this.resize($dragging, {
+            // top: event.pageY,
+            left: event.pageX
+          });
+          return false;
+        }
+      });
+
     },
 
     percentage: function(int) {
