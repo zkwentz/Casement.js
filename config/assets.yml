@@ -1,0 +1,7 @@
+javascript_compressor: closure
+package_path: ""
+gzip_assets: off
+
+javascripts:
+  readmore.min:
+    - readmore.js

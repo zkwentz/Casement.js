@@ -11,10 +11,8 @@
 
   var casement = 'casement',
       defaults = {
-        limit: 100,
         orientation: 'horizontal',
-        positions: [ '50%' ],
-        gutter: 4,
+        // gutter: 0,
         onDragStart: $.noop,
         onDragEnd: $.noop,
         onDrag: $.noop
@@ -37,20 +35,20 @@
       var $this = this,
           height = $($this.element).innerHeight()
           columns = $($this.element).children().length,
-          paneSize = ( (100 - this.options.gutter * (columns - 1)) / columns  );
+          paneSize = ( 100 / columns );
 
       $($this.element).css({position: 'relative'});
 
       $($this.element).children().each(function(index) {
         $(this).css({
           width: paneSize + '%',
-          left: (paneSize * index) + ( (index > 0) ? $this.options.gutter * index : 0 )  + '%',
+          left: (paneSize * index) + '%',
           position: 'absolute'
         });
 
         if(index !== columns - 1) {
           $('<div/>').addClass('vertical sash').css({
-            left: (paneSize * (index + 1)) + ( $this.options.gutter * index + 1.25)  + '%',
+            left: (paneSize * (index + 1)) + '%',
             height: height,
           }).attr('id', 'sash' + (index + 1))
           .mouseenter(function() {
@@ -99,22 +97,86 @@
     },
 
     percentage: function(int) {
+      //       console.log(int);
+      // console.log($(this.element).innerWidth());
+      // 
+      // console.log(( Math.round(int) /  ( $(this.element).innerWidth() * 0.01 ) ));
+      // console.log(Math.abs( int /  ( $(this.element).innerWidth() * 0.01 ) ));
       return  Math.abs( int /  ( $(this.element).innerWidth() * 0.01 ) );
     },
 
     resize: function(handle, offset) {
-      var diff = handle.offset().left - offset.left,
-          leftNewWidth = this.percentage(handle.prev().width() - diff),
-          rightNewWidth = this.percentage(handle.next().width() + diff),
-          rightNewOffset = this.percentage(handle.next().offset().left - diff  - $(this.element).offset().left);
+      var
+        a = '', // Left: left offset
+        b = '', // Left: outer width
+        c = '', // Handle: left offset
+        d = '', // Right: left offset
+        e = '', // Right: outer width
+        f = '', // NextHandle: left offset || Right: right edge; d + e
+        g = ''; // ParentElement: inner width
 
-      handle.css({left: (this.percentage(offset.left  - $(this.element).offset().left )) + '%'});
-      handle.prev().css({width: (leftNewWidth) + '%'});
+      var
+        h = '', // Handle: NEW left offset
+        i = handle.offset().left - offset.left, // Diff: amount of movement; c - h
+        j = '', // Left: NEW width; b - i
+        k = '', // Right: NEW left offset; d - i
+        l = ''; // RIGHT: NEW width; e + i
 
-      handle.next().css({
-        width: (rightNewWidth) + '%',
-        left: (rightNewOffset) + '%'
-      });
+
+
+
+      var
+          diff = handle.offset().left - offset.left,
+          handleNewOffset = (offset.left - $(this.element).offset().left),
+
+          leftNewWidth = handle.prev().outerWidth() - diff,
+
+          rightNewWidth = handle.next().outerWidth() + diff,
+          rightNewOffset = (handle.next().offset().left - diff  - $(this.element).offset().left),
+
+          leftLimit = handle.prev().offset().left - $(this.element).offset().left,
+
+          // rightLimit = ;
+          rightLimit = handle.siblings('#' + handle.attr('id') + ' ~ .sash').first().length > 0 ? handle.siblings('#' + handle.attr('id') + ' ~ .sash').first().offset().left - $(this.element).offset().left : (rightNewWidth + rightNewOffset);
+
+          
+
+
+          console.log(diff);
+      // console.log('left edge: ' + (leftNewWidth + leftNewOffset));
+      console.log('right edge: ' + (rightNewWidth + rightNewOffset));
+      console.log('rightNewOffset: ' + rightNewOffset);
+      console.log('rightNewWidth: ' + rightNewWidth);
+
+      console.log('leftLimit: ' + leftLimit);
+      console.log('leftNewWidth: ' + leftNewWidth);
+      // console.log(handle);
+      // console.log(this.percentage(handle.offset().left));
+      console.log('rightLimit: ' + rightLimit);
+      console.log('handleNewOffset: ' + handleNewOffset);
+
+      console.log($(this.element).innerWidth() + $(this.element).offset().left);
+
+
+      if (handleNewOffset >= rightLimit  || handleNewOffset <= leftLimit || handleNewOffset >= (rightNewWidth + rightNewOffset) || offset.left >= $(this.element).innerWidth() + $(this.element).offset().left) {
+        console.log('noop');
+return;
+        // handleNewOffset = (rightNewWidth + rightNewOffset);
+      }
+
+      else {
+        // console.log('handle b: ' + handleNewOffset);
+
+        handle.css({left: (this.percentage(handleNewOffset)) + '%'});
+        handle.prev().css({width: (this.percentage(leftNewWidth)) + '%'});
+
+        handle.next().css({
+          width: (this.percentage(rightNewWidth)) + '%',
+          left: (this.percentage(rightNewOffset)) + '%'
+        });
+      }
+
+      console.log('---');
     },
   },
 
